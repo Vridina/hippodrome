@@ -1,18 +1,14 @@
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.lang.reflect.Field;
-import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mockStatic;
 
 class HorseTest {
 
@@ -22,7 +18,6 @@ class HorseTest {
     public static final String SPEED_CANNOT_BE_NEGATIVE = "Speed cannot be negative.";
     public static final String DISTANCE_CANNOT_BE_NEGATIVE = "Distance cannot be negative.";
     public static final String NAME = "Name";
-    public Horse horseT = Mockito.mock(Horse.class);
 
     @Test
     public void nameCannotBeNull() {
@@ -67,35 +62,30 @@ class HorseTest {
     }
 
     @Test
-    void getSpeedTest() {
-        Mockito.when(horseT.getSpeed()).thenReturn(anyDouble());
+    void getSpeed() {                                               //упрощенный вариант без рефлексии
+        Horse horse = new Horse(NAME, 1, 1);
+        assertEquals(1, horse.getSpeed());
     }
 
     @Test
-    void getDistanceTest() {
-        Mockito.when(horseT.getDistance()).thenReturn(anyDouble());
-    }
-
-
-    @Test
-    void moveTest() {
-        Mockito.doAnswer(distance -> {
-            double s = horseT.getSpeed();
-            double r = Horse.getRandomDouble(anyDouble(), anyDouble());
-            return s * r;
-        }).when(horseT).move();
+    void getDistance() {
+        Horse horse = new Horse(NAME, 1, 1);
+        assertEquals(1, horse.getDistance());
     }
 
     @Test
-    void getRandomDoubleTest() {
-        double min = 0.2;
-        double max = 0.9;
-        try (MockedStatic<Horse> util = Mockito.mockStatic(Horse.class)) {
+    void getDistanceZero() {
+        Horse horse = new Horse(NAME, 1);
+        assertEquals(0, horse.getDistance());
+    }
 
-
-            util.when(() -> Horse.getRandomDouble(min, max)).thenReturn(anyDouble());
-            assertEquals(anyDouble(), Horse.getRandomDouble(min, max));
+    @Test
+    void moveGetRandomDouble() {
+        try (MockedStatic<Horse> mockedStatic = mockStatic(Horse.class)) {
+            new Horse(NAME, 1, 1).move();
+            mockedStatic.verify(() -> Horse.getRandomDouble(0.2, 0.9));
         }
+
     }
 }
 
